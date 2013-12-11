@@ -1,0 +1,18 @@
+SRCS = main.cpp
+OBJS = $(SRCS:.cpp=.o)
+TARGET = a.out
+CXX = arm-uclinuxeabi-g++
+CXXFLAGS = -O3 -Wall -I$(INSTALL_ROOT)/A2F/root/usr/include 
+LDFLAGS = -mcpu=cortex-m3 -mthumb -L${INSTALL_ROOT}/A2F/root/usr/lib -pthread
+LIBS = -L. -lfunc
+
+all: $(OBJS)
+	$(CXX) $(LDFLAGS) $(OBJS) $(LIBS) -o $(TARGET)
+	@echo done.
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(@:.o=.cpp) -c
+
+clean:
+	rm -rf *.o core.* *# *~ $(TARGET)
+	echo $(OBJS)
