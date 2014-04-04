@@ -1,4 +1,4 @@
-OBJECTS_DUMP=i2cdump.o i2cbusses.o util.o 
+OBJECTS_DUMP=i2cdump.o i2cbusses.o util.o  
 SOURCES_DUMO=i2cdump.c i2cbusses.c util.c 
 EXECUTABLE_DUMP=i2cdump
 
@@ -14,6 +14,23 @@ OBJECTS_SET=i2cset.o i2cbusses.o util.o
 SOURCES_SET=i2cset.c i2cbusses.c util.c
 EXECUTABLE_SET=i2cset
 
+OBJECTS_SAMPLE=i2csample.o i2cbusses.o util.o
+SOURCES_SAMPLE=i2csample.c i2cbusses.c util.c
+EXECUTABLE_SAMPLE=i2csample
+
+OBJECTS_SAMPLE_SHT25=i2csample_sht25.o i2cbusses.o util.o
+SOURCES_SAMPLE_SHT25=i2csample_sht25.c i2cbusses.c util.c
+EXECUTABLE_SAMPLE_SHT25=i2csample_sht25
+
+OBJECTS_SAMPLE_SHT25_V2=i2csample_sht25_v2.o i2cbusses.o util.o
+SOURCES_SAMPLE_SHT25_V2=i2csample_sht25_v2.c i2cbusses.c util.c
+EXECUTABLE_SAMPLE_SHT25_V2=i2csample_sht25_v2
+
+OBJECTS_SAMPLE_TEST=i2csample_test.o i2cbusses.o util.o
+SOURCES_SAMPLE_TEST=i2csample_test.c i2cbusses.c util.c
+EXECUTABLE_SAMPLE_TEST=i2csample_test
+
+
 CC=arm-uclinuxeabi-gcc
 CXX=arm-uclinuxeabi-g++
 MIPSE=MIPSEL
@@ -22,7 +39,7 @@ CFLAGS=-c  -I. -I../include -D$(MIPSE) -DPROTOCOL=1 -I$(INSTALL_ROOT)/A2F/root/u
 LDFLAGS=-L. -mcpu=cortex-m3 -mthumb -L${INSTALL_ROOT}/A2F/root/usr/lib -pthread
 
 
-all: $(EXECUTABLE_DUMP) $(EXECUTABLE_DETECT) $(EXECUTABLE_GET) $(EXECUTABLE_SET)
+all: $(EXECUTABLE_DUMP) $(EXECUTABLE_DETECT) $(EXECUTABLE_GET) $(EXECUTABLE_SET) $(EXECUTABLE_SAMPLE) $(EXECUTABLE_SAMPLE_SHT25) $(EXECUTABLE_SAMPLE_TEST) $(EXECUTABLE_SAMPLE_SHT25_V2)
 
 clean:
 	rm -f *.o
@@ -42,6 +59,18 @@ i2cget: $(OBJECTS_GET)
 i2cset: $(OBJECTS_SET)
 	$(CC) $(LDFLAGS) $(OBJECTS_SET) -o $@
 
+i2csample: $(OBJECTS_SAMPLE)
+	$(CC) $(LDFLAGS) $(OBJECTS_SAMPLE) -o $@
+
+i2csample_sht25: $(OBJECTS_SAMPLE_SHT25)
+	$(CC) $(LDFLAGS) $(OBJECTS_SAMPLE_SHT25) -o $@
+
+i2csample_sht25_v2: $(OBJECTS_SAMPLE_SHT25_V2)
+	$(CC) $(LDFLAGS) $(OBJECTS_SAMPLE_SHT25_V2) -o $@
+
+i2csample_test: $(OBJECTS_SAMPLE_TEST)
+	$(CC) $(LDFLAGS) $(OBJECTS_SAMPLE_TEST) -o $@
+
 
 i2cdump.o: i2cdump.c
 	$(CC) $(CFLAGS) -o i2cdump.o i2cdump.c
@@ -54,6 +83,20 @@ i2cget.o: i2cget.c
 
 i2cset.o: i2cset.c
 	$(CC) $(CFLAGS) -o i2cset.o i2cset.c
+
+i2csample.o: i2csample.c
+	$(CC) $(CFLAGS) -o i2csample.o i2csample.c
+
+i2csample_sht25.o: i2csample_sht25.c
+	$(CC) $(CFLAGS) -o i2csample_sht25.o i2csample_sht25.c
+
+i2csample_sht25_v2.o: i2csample_sht25_v2.c
+	$(CC) $(CFLAGS) -o i2csample_sht25_v2.o i2csample_sht25_v2.c
+
+
+i2csample_test.o: i2csample_test.c
+	$(CC) $(CFLAGS) -o i2csample_test.o i2csample_test.c
+
 
 i2cbusses.o: i2cbusses.c
 	$(CC) $(CFLAGS) -o i2cbusses.o i2cbusses.c
