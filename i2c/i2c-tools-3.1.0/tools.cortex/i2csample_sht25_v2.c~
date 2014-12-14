@@ -22,6 +22,12 @@ int main(int argc, char *argv[])
   int ievent = 0;
   int nevent = 100;
 
+  char *pData;
+
+  pData = malloc(1000);
+
+  return 1;
+
   
   while(ievent<nevent){
 

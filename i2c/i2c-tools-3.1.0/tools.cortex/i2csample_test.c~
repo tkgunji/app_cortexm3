@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
       printf("Tadc = 0x%x, %d\n", res, tadc);
       
     }
-    sleep(sleep_time);
+        sleep(sleep_time);
     //// correction a0
     res=i2c_smbus_read_word_data(file,0x04);
     if(res<0){

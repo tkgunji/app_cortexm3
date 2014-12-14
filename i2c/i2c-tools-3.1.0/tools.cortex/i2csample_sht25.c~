@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   printf("ioctl done \n");
   res = i2c_smbus_write_byte_data(file, 0x40, 0x3e);
   sleep(1);
-  printf("Done %d\n", res);
+  printf("Done\n");
 
   ///// read Padc
   res=i2c_smbus_read_word_data(file,0x03);

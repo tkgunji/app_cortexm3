@@ -28,6 +28,31 @@ char buf2[32];
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
+
+#define READ_ARRAY_OPCODE   0x03
+#define DEVICE_ID_READ      0x9F
+
+
+#define WRITE_ENABLE_CMD    0x06
+#define WRITE_DISABLE_CMD   0x4
+#define PROGRAM_PAGE_CMD    0x02
+#define WRITE_STATUS1_OPCODE    0x01
+#define CHIP_ERASE_OPCODE   0x60
+#define ERASE_4K_BLOCK_OPCODE   0x21
+#define ERASE_32K_BLOCK_OPCODE  0x52
+#define ERASE_64K_BLOCK_OPCODE  0xD8
+#define READ_STATUS         0x05
+
+#define DMA_TRANSFER_SIZE    32u
+#define READY_BIT_MASK      0x01
+
+#define UNPROTECT_SECTOR_OPCODE     0x39
+
+#define DONT_CARE       0
+
+#define NB_BYTES_PER_PAGE   256
+
+
 static void pabort(const char *s)
 {
   perror(s);
@@ -40,6 +65,56 @@ static uint8_t bits = 8;
 static uint32_t speed = 10000000;
 static uint16_t delay;
 
+void print_status_reg(int fd)
+{
+  int status;
+  buf[0] = READ_STATUS;
+
+  xfer[0].tx_buf = (unsigned long)buf;
+  xfer[0].len = 1;
+  
+  xfer[1].rx_buf = (unsigned long) buf2;
+  xfer[1].len = 1; /* Length of Data to read */
+  
+  status = ioctl(fd, SPI_IOC_MESSAGE(2), xfer);
+    
+  if (status < 0)
+    {
+      perror("SPI_IOC_MESSAGE");
+      return;
+    }
+
+  printf("status-reg 1 %d %02x \n", status, buf2[0]);
+}
+
+void wait_ready(int fd)
+{
+  int status;
+  uint8_t ready_bit;
+  buf[0] = READ_STATUS;
+
+  do {
+    xfer[0].tx_buf = (unsigned long)buf;
+    xfer[0].len = 1;
+
+    xfer[1].rx_buf = (unsigned long) buf2;
+    xfer[1].len = 1; /* Length of Data to read */
+
+    status = ioctl(fd, SPI_IOC_MESSAGE(2), xfer);
+    
+    if (status < 0)
+      {
+	perror("SPI_IOC_MESSAGE");
+	return;
+      }
+    ready_bit = buf2[0];
+    ready_bit = ready_bit & READY_BIT_MASK;
+  } while(ready_bit == 1);
+//printf("*** %d %02x \n", status, buf2[0]);
+//  printf("*** %d %02x \n", status, buf2[1]);
+
+}
+
 void spi_write(int fd, int addr,  unsigned char value[], int nbytes)
 {
 
@@ -51,7 +126,7 @@ void spi_write(int fd, int addr,  unsigned char value[], int nbytes)
 
 
   //write enable 
-  buf[0] = 0x06;
+  buf[0] = WRITE_ENABLE_CMD; //0x06;
   xfer[0].tx_buf = (unsigned long)buf;
   xfer[0].len = 1;
   status = ioctl(fd, SPI_IOC_MESSAGE(1), xfer);
@@ -63,7 +138,7 @@ void spi_write(int fd, int addr,  unsigned char value[], int nbytes)
 
 
   //write data 
-  buf[0] = 0x02;
+  buf[0] = PROGRAM_PAGE_CMD; //0x02;
   buf[1] = ((addr >> 16) & 0xFF);
   buf[2] = ((addr >> 8) & 0xFF);;
   buf[3] = (addr & 0xFF);
@@ -100,19 +175,20 @@ void spi_erase_4k(int fd, int addr)
   int index=0;
 
   //write enable 
-  //buf[0] = 0x06;
-  //xfer[0].tx_buf = (unsigned long)buf;
-  //xfer[0].len = 1;
-  //status = ioctl(fd, SPI_IOC_MESSAGE(1), xfer);
-  //if (status < 0)
-  //{
-  //perror("SPI_IOC_MESSAGE");
-  //return;
-  //}
+  wait_ready(fd);
+  buf[0] = WRITE_ENABLE_CMD; //0x06;
+  xfer[0].tx_buf = (unsigned long)buf;
+  xfer[0].len = 1;
+  status = ioctl(fd, SPI_IOC_MESSAGE(1), xfer);
+  if (status < 0)
+  {
+    perror("SPI_IOC_MESSAGE");
+    return;
+  }
 
-
+  wait_ready(fd);
   //erase data 
-  buf[0] = 0x20;
+  buf[0] = ERASE_4K_BLOCK_OPCODE; //0x20;
   buf[1] = ((addr >> 16) & 0xFF);
   buf[2] = ((addr >> 8) & 0xFF);;
   buf[3] = (addr & 0xFF);
@@ -126,7 +202,6 @@ void spi_erase_4k(int fd, int addr)
       perror("SPI_IOC_MESSAGE");
       return;
     }
-
 }
 
 //////////
@@ -138,7 +213,7 @@ char * spi_read(int fd, int addr, int nbytes)
   int status; 
   int index=0;
   //memset(buf, 0, sizeof buf);
-  buf[0] = 0x03;
+  buf[0] = READ_ARRAY_OPCODE; //0x03;
   buf[1] = ((addr >> 16) & 0xFF);
   buf[2] = ((addr >> 8) & 0xFF);
   buf[3] = (addr & 0xFF);
@@ -245,7 +320,7 @@ int main(int argc, char *argv[])
 {
   int ret = 0;
   int fd;
-  int addr = 0x420000;
+  int addr = 0x410000;
   char *buffer;
   int iadd=0;
 
@@ -272,6 +347,7 @@ int main(int argc, char *argv[])
   ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
   if (ret == -1)
     pabort("can't set spi mode");
+
 
   ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
   if (ret == -1)
@@ -303,10 +379,11 @@ int main(int argc, char *argv[])
   printf("bits per word: %d\n", bits);
   printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
-  
-  spi_erase_4k(fd, addr);
-  //spi_write(fd, addr, data, nbytes);
-  
+
+
+  spi_erase_4k(fd, 0x410000); ///this address should be base-address of the Flash block
+  buffer=(char *)spi_read(fd, addr, nbytes);  
+  spi_write(fd, addr, data, nbytes);  
   buffer=(char *)spi_read(fd, addr, nbytes);  
 
   close(fd);

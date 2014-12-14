@@ -320,11 +320,11 @@ int main(int argc, char *argv[])
 {
   int ret = 0;
   int fd;
-  int addr = 0x410000;
+  int addr = 0x0;
   char *buffer;
   int iadd=0;
 
-  int nbytes = 10;
+  int nbytes = 4;
   unsigned char data[] = {
     0x4e, 0x41, 0x42, 0x43, 0x44, 0x45,
     0x46, 0x4e, 0x44, 0x44, 0x44, 0x95,
@@ -381,9 +381,9 @@ int main(int argc, char *argv[])
 
 
 
-  spi_erase_4k(fd, 0x410000); ///this address should be base-address of the Flash block
-  buffer=(char *)spi_read(fd, addr, nbytes);  
-  spi_write(fd, addr, data, nbytes);  
+  //spi_erase_4k(fd, 0x410000); ///this address should be base-address of the Flash block
+  //buffer=(char *)spi_read(fd, addr, nbytes);  
+  //spi_write(fd, addr, data, nbytes);  
   buffer=(char *)spi_read(fd, addr, nbytes);  
 
   close(fd);

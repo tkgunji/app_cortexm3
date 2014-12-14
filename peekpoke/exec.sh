@@ -1,0 +1,32 @@
+#! /bin/sh
+
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040800 0x0
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040800 0x1
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040800 0x0
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040500 $1
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040600 0x0
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040600 0x3
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040100 
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040140 
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x50040180 
+#/mnt/app_cortexm3/peekpoke/peekpoke 32 0x500401C0 
+
+/tpc/peekpoke 32 0x50040800 0x0
+/tpc/peekpoke 32 0x50040800 0x1
+/tpc/peekpoke 32 0x50040800 0x0
+/tpc/peekpoke 32 0x50040500 $1
+/tpc/peekpoke 32 0x50040700 $2
+/tpc/peekpoke 32 0x50040600 0x0
+/tpc/peekpoke 32 0x50040600 0x3
+/tpc/peekpoke 32 0x50040100 
+/tpc/peekpoke 32 0x50040140 
+/tpc/peekpoke 32 0x50040180 
+/tpc/peekpoke 32 0x500401C0 
+/tpc/peekpoke 32 0x50040200 
+/tpc/peekpoke 32 0x50040240 
+/tpc/peekpoke 32 0x50040280 
+/tpc/peekpoke 32 0x500402C0 
+/tpc/peekpoke 32 0x50040300 
+/tpc/peekpoke 32 0x50040340 
+/tpc/peekpoke 32 0x50040380 
+/tpc/peekpoke 32 0x500403C0 
